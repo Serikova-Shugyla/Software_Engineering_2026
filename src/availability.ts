@@ -50,7 +50,7 @@ export function checkAvailability(
   // AC4: no overlap with existing bookings (touching endpoints allowed)
   bookings.sort((a, b) => a.start - b.start);
   const overlaps = bookings.filter(
-    (b) => b.roomId === room.id && start < b.end && b.start < end
+    (b) => b.roomId === room.id && start <= b.end && b.start <= end
   );
   if (overlaps.length > 0) {
     const b = overlaps[0];
