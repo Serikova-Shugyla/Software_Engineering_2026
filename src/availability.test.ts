@@ -131,4 +131,16 @@ describe("checkAvailability — AC5 (does not modify bookings)", () => {
     expectRejected(r, "overlap");
     expect(bookings).toEqual(before);
   });
+
+    it("BUG-B: unsorted bookings keep their original order", () => {
+    bookings = [
+      { id: "b2", roomId: "r1", start: 800, end: 860, title: "Chemistry", bookedBy: "Dr. Lee" },
+      { id: "b1", roomId: "r1", start: 600, end: 660, title: "Physics Lab", bookedBy: "Prof. Garcia" },
+    ];
+    const before = snapshot(bookings);
+    const r = checkAvailability(660, 720, room, bookings, NOW);
+    expectAccepted(r);
+    expect(bookings).toEqual(before);
+    expect(bookings.map((b) => b.id)).toEqual(["b2", "b1"]);
+  });
 });
