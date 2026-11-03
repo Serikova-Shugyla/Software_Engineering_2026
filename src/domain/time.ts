@@ -17,8 +17,3 @@ export function timeInputToMinutes(val: string): number {
   if (isNaN(h) || isNaN(m)) return NaN;
   return h * 60 + m;
 }
-
-export function getNowMinutes(): number {
-  const d = new Date();
-  return d.getHours() * 60 + d.getMinutes();
-}

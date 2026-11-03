@@ -1,4 +1,4 @@
-import type { CheckResult } from "../availability";
+import type { CheckResult } from "../domain/availability";
 import { CheckCircle2, XCircle } from "lucide-react";
 
 interface ResultPanelProps {

@@ -1,5 +1,6 @@
 import type { Room } from "../types";
 import { MapPin, Users, Lock } from "lucide-react";
+import { EQUIPMENT_OPTIONS } from "../data/equipment";
 
 interface RoomCardProps {
   room: Room;
@@ -12,6 +13,7 @@ export function RoomCard({ room, selected, onClick, bookingCount }: RoomCardProp
   return (
     <button
       onClick={onClick}
+      aria-pressed={selected}
       className={[
         "w-full text-left rounded-2xl border p-4 transition-all duration-200",
         selected
@@ -43,6 +45,16 @@ export function RoomCard({ room, selected, onClick, bookingCount }: RoomCardProp
         <span className="text-slate-300">|</span>
         <span>{bookingCount} booking{bookingCount !== 1 ? "s" : ""}</span>
       </div>
+      <ul className="flex flex-wrap gap-1.5 mt-3">
+        {room.equipment.map((id) => (
+          <li
+            key={id}
+            className="text-[11px] text-slate-600 bg-slate-100 border border-slate-200 rounded-full px-2 py-0.5"
+          >
+            {EQUIPMENT_OPTIONS.find((o) => o.id === id)?.label ?? id}
+          </li>
+        ))}
+      </ul>
     </button>
   );
 }

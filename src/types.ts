@@ -1,3 +1,10 @@
+export type Equipment =
+  | "projector"
+  | "whiteboard"
+  | "computers"
+  | "microphone"
+  | "video-conferencing";
+
 export interface Booking {
   id: string;
   roomId: string;
@@ -12,5 +19,12 @@ export interface Room {
   name: string;
   building: string;
   capacity: number;
+  equipment: Equipment[];
   blocked: boolean;
+}
+
+/** What the user asks for in the filter panel (F1, F2). attendees = 0 means "no minimum". */
+export interface RoomRequirements {
+  attendees: number;
+  equipment: Equipment[];
 }

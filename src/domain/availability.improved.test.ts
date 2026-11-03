@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { checkAvailability, type CheckResult } from "./availability";
-import type { Room, Booking } from "./types";
+import type { Room, Booking } from "../types";
 
 // Improved with Claude after review.
 // Original 18 tests (T01..T16 + 2x AC5) preserved with their expectations,
@@ -35,6 +35,7 @@ const DEFAULT_ROOM: Room = {
   name: "Lab 101",
   building: "Tech Block",
   capacity: 40,
+  equipment: [],
   blocked: false,
 };
 const DEFAULT_BOOKINGS: Booking[] = [

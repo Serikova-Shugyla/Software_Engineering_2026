@@ -1,0 +1,66 @@
+## Duplicated logic locations (git grep, non-test files)
+
+| Rule | Before (v1-initial) | After (working tree) | Removed |
+|---|---|---|---|
+| Max-duration rule (literal 120 used in code) | 2 | 1 | 1 |
+
+<!-- before: src/App.tsx:144, src/availability.ts:33 | after: src/config.ts:2 -->
+| Day-bound rule (literal 1440 used in code) | 2 | 1 | 1 |
+
+<!-- before: src/availability.ts:18, src/components/Timeline.tsx:14 | after: src/config.ts:4 -->
+| 'Bookings of a room' filter (roomId ===) | 4 | 1 | 3 |
+
+<!-- before: src/App.tsx:30, src/availability.ts:52, src/components/BookingList.tsx:12, src/components/Timeline.tsx:20 | after: src/domain/bookings.ts:5 -->
+| 'Invalidate previous result' rule | 4 | 1 | 3 |
+
+<!-- before: src/App.tsx:45, src/App.tsx:104, src/App.tsx:115, src/App.tsx:126 | after: src/state/checkerState.ts:38 -->
+| Form-control style copy-pasted (input classes) | 3 | 1 | 2 |
+
+<!-- before: src/App.tsx:105, src/App.tsx:116, src/App.tsx:127 | after: src/components/styles.ts:3 -->
+
+Total redundant copies removed: 10
+
+## Structure (non-test .ts/.tsx source files)
+
+| Measure | Before | After |
+|---|---|---|
+| Source files | 10 | 20 |
+| Source folders | 2 | 5 |
+| Source lines | 558 | 882 |
+| Largest file | src/App.tsx (176) | src/App.tsx (158) |
+
+Before files:
+  176	src/App.tsx
+  71	src/availability.ts
+  46	src/components/BookingList.tsx
+  44	src/components/ResultPanel.tsx
+  48	src/components/RoomCard.tsx
+  104	src/components/Timeline.tsx
+  19	src/data.ts
+  10	src/main.tsx
+  24	src/timeUtils.ts
+  16	src/types.ts
+
+After files:
+  158	src/App.tsx
+  46	src/components/BookingList.tsx
+  44	src/components/ResultPanel.tsx
+  60	src/components/RoomCard.tsx
+  80	src/components/RoomFilterPanel.tsx
+  51	src/components/RoomList.tsx
+  23	src/components/TimeField.tsx
+  106	src/components/Timeline.tsx
+  3	src/components/styles.ts
+  5	src/config.ts
+  11	src/data/bookings.ts
+  9	src/data/equipment.ts
+  11	src/data/rooms.ts
+  75	src/domain/availability.ts
+  11	src/domain/bookings.ts
+  24	src/domain/filter.ts
+  19	src/domain/time.ts
+  10	src/main.tsx
+  106	src/state/checkerState.ts
+  30	src/types.ts
+
+Test files: before 2, after 6

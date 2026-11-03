@@ -1,8 +1,16 @@
-import type { Room, Booking } from "./types";
+import type { Room, Booking } from "../types";
+import { DAY_START_MINUTES, DAY_END_MINUTES, MAX_BOOKING_MINUTES } from "../config";
+import { minutesToLabel } from "./time";
+import { getRoomBookings } from "./bookings";
 
 export type CheckResult =
   | { ok: true; message: string }
   | { ok: false; message: string; reason: string };
+
+/** AC2 rule, shared by the validator and the UI duration hint. */
+export function exceedsMaxDuration(start: number, end: number): boolean {
+  return end - start > MAX_BOOKING_MINUTES;
+}
 
 export function checkAvailability(
   start: number,
@@ -15,7 +23,7 @@ export function checkAvailability(
   if (isNaN(start) || isNaN(end)) {
     return { ok: false, message: "Invalid time values.", reason: "invalid" };
   }
-  if (start < 0 || end > 1440) {
+  if (start < DAY_START_MINUTES || end > DAY_END_MINUTES) {
     return { ok: false, message: "Time must be between 00:00 and 24:00.", reason: "range" };
   }
   if (start >= end) {
@@ -29,16 +37,16 @@ export function checkAvailability(
     };
   }
 
-  // AC2: max 120 minutes
-  if (end - start > 120) {
+  // AC2: max duration
+  if (exceedsMaxDuration(start, end)) {
     return {
       ok: false,
-      message: "Bookings may not exceed 120 minutes.",
+      message: `Bookings may not exceed ${MAX_BOOKING_MINUTES} minutes.`,
       reason: "too_long",
     };
   }
 
-  // AC3: blocked room
+  // AC3 / F3: blocked room is never available
   if (room.blocked) {
     return {
       ok: false,
@@ -47,15 +55,14 @@ export function checkAvailability(
     };
   }
 
-  // AC4: no overlap with existing bookings (touching endpoints allowed)
-  const overlaps = bookings.filter(
-    (b) => b.roomId === room.id && start < b.end && b.start < end
+  // AC4: no overlap with THIS room's bookings (touching endpoints allowed)
+  const conflict = getRoomBookings(bookings, room.id).find(
+    (b) => start < b.end && b.start < end
   );
-  if (overlaps.length > 0) {
-    const b = overlaps[0];
+  if (conflict) {
     return {
       ok: false,
-      message: `Overlaps "${b.title}" (${minutesToLabel(b.start)}–${minutesToLabel(b.end)}).`,
+      message: `Overlaps "${conflict.title}" (${minutesToLabel(conflict.start)}–${minutesToLabel(conflict.end)}).`,
       reason: "overlap",
     };
   }
@@ -66,6 +73,3 @@ export function checkAvailability(
     message: `"${room.name}" is available for ${minutesToLabel(start)}–${minutesToLabel(end)}.`,
   };
 }
-
-// Import here to avoid circular deps
-import { minutesToLabel } from "./timeUtils";

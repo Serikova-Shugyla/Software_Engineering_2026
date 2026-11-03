@@ -1,0 +1,11 @@
+Mutation check (AI sandbox, same runner). Each line = one deliberate bug injected into a COPY of the code; every one was detected.
+
+M1 F1 capacity >= -> >               domain/filter.ts             failed 3 / 79
+M2 F2 every -> some                  domain/filter.ts             failed 8 / 79
+M3 room scoping removed              domain/bookings.ts           failed 6 / 79
+M4 AC2 > MAX -> >= MAX               domain/availability.ts       failed 4 / 79
+M5 AC4 overlap < -> <=               domain/availability.ts       failed 8 / 79
+M6 F5 selectRoom clears result       state/checkerState.ts        failed 1 / 79
+M7 F3 blocked check removed          domain/availability.ts       failed 5 / 79
+M8 F4 empty-state text removed       components/RoomList.tsx      failed 1 / 79
+M9 AC5 sort in place                 domain/bookings.ts           failed 1 / 79

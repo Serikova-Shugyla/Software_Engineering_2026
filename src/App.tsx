@@ -1,50 +1,40 @@
-import { useState, useMemo, useCallback } from "react";
-import { SAMPLE_ROOMS, SAMPLE_BOOKINGS } from "./data";
-import { RoomCard } from "./components/RoomCard";
+import { useReducer } from "react";
+import { SAMPLE_ROOMS } from "./data/rooms";
+import { SAMPLE_BOOKINGS } from "./data/bookings";
+import { RoomList } from "./components/RoomList";
+import { RoomFilterPanel } from "./components/RoomFilterPanel";
+import { TimeField } from "./components/TimeField";
 import { Timeline } from "./components/Timeline";
 import { BookingList } from "./components/BookingList";
 import { ResultPanel } from "./components/ResultPanel";
-import { checkAvailability, type CheckResult } from "./availability";
-import { timeInputToMinutes, timeInputValue, getNowMinutes, minutesToLabel } from "./timeUtils";
+import { exceedsMaxDuration } from "./domain/availability";
+import { parseAttendees } from "./domain/filter";
+import { timeInputToMinutes, minutesToLabel } from "./domain/time";
+import { MAX_BOOKING_MINUTES } from "./config";
+import {
+  checkerReducer,
+  createInitialState,
+  selectResult,
+  selectSelectedRoom,
+  selectVisibleRooms,
+  type CheckerAction,
+  type CheckerState,
+} from "./state/checkerState";
 import { Clock, Building2, Sparkles, Search } from "lucide-react";
 
+const reduce = (state: CheckerState, action: CheckerAction) =>
+  checkerReducer(state, action, SAMPLE_ROOMS);
+
 function App() {
-  const [bookings] = useState(SAMPLE_BOOKINGS);
-  const [selectedRoomId, setSelectedRoomId] = useState<string | null>("r1");
-  const [startTime, setStartTime] = useState("14:00");
-  const [endTime, setEndTime] = useState("15:00");
-  const [nowTime, setNowTime] = useState(timeInputValue(getNowMinutes()));
-  const [result, setResult] = useState<CheckResult | null>(null);
-  const [hasChecked, setHasChecked] = useState(false);
+  const [state, dispatch] = useReducer(reduce, SAMPLE_ROOMS, createInitialState);
 
-  const selectedRoom = useMemo(
-    () => SAMPLE_ROOMS.find((r) => r.id === selectedRoomId) ?? null,
-    [selectedRoomId]
-  );
+  const visibleRooms = selectVisibleRooms(state, SAMPLE_ROOMS);
+  const selectedRoom = selectSelectedRoom(state, SAMPLE_ROOMS);
+  const result = selectResult(state, SAMPLE_ROOMS, SAMPLE_BOOKINGS);
 
-  const nowMinutes = timeInputToMinutes(nowTime);
-  const startMin = timeInputToMinutes(startTime);
-  const endMin = timeInputToMinutes(endTime);
-
-  const bookingCount = useCallback(
-    (roomId: string) => bookings.filter((b) => b.roomId === roomId).length,
-    [bookings]
-  );
-
-  const handleCheck = () => {
-    setHasChecked(true);
-    if (!selectedRoom) {
-      setResult({ ok: false, message: "Please select a room first.", reason: "no_room" });
-      return;
-    }
-    setResult(checkAvailability(startMin, endMin, selectedRoom, bookings, nowMinutes));
-  };
-
-  const onRoomSelect = (id: string) => {
-    setSelectedRoomId(id);
-    setHasChecked(false);
-    setResult(null);
-  };
+  const nowMinutes = timeInputToMinutes(state.nowTime);
+  const startMin = timeInputToMinutes(state.startTime);
+  const endMin = timeInputToMinutes(state.endTime);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-teal-50/30 to-slate-100">
@@ -67,23 +57,31 @@ function App() {
       </header>
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+        {/* Requirements (F1, F2) */}
+        <RoomFilterPanel
+          requirements={state.requirements}
+          matchCount={visibleRooms.length}
+          totalCount={SAMPLE_ROOMS.length}
+          onAttendeesChange={(raw) =>
+            dispatch({ type: "setAttendees", attendees: parseAttendees(raw) })
+          }
+          onToggleEquipment={(equipment) => dispatch({ type: "toggleEquipment", equipment })}
+          onClear={() => dispatch({ type: "clearFilters" })}
+        />
+
         {/* Rooms */}
         <section>
           <div className="flex items-center gap-2 mb-3">
             <Sparkles className="w-4 h-4 text-teal-600" />
             <h2 className="text-sm font-semibold text-slate-700">Select a Room</h2>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {SAMPLE_ROOMS.map((room) => (
-              <RoomCard
-                key={room.id}
-                room={room}
-                selected={selectedRoomId === room.id}
-                onClick={() => onRoomSelect(room.id)}
-                bookingCount={bookingCount(room.id)}
-              />
-            ))}
-          </div>
+          <RoomList
+            rooms={visibleRooms}
+            bookings={SAMPLE_BOOKINGS}
+            selectedRoomId={state.selectedRoomId}
+            onSelect={(roomId) => dispatch({ type: "selectRoom", roomId })}
+            onClearFilters={() => dispatch({ type: "clearFilters" })}
+          />
         </section>
 
         {/* Time + Check */}
@@ -94,42 +92,24 @@ function App() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
-            <div>
-              <label className="block text-xs font-medium text-slate-600 mb-1.5">
-                Current time
-              </label>
-              <input
-                type="time"
-                value={nowTime}
-                onChange={(e) => { setNowTime(e.target.value); setHasChecked(false); setResult(null); }}
-                className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-teal-400 transition"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-slate-600 mb-1.5">
-                Start time
-              </label>
-              <input
-                type="time"
-                value={startTime}
-                onChange={(e) => { setStartTime(e.target.value); setHasChecked(false); setResult(null); }}
-                className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-teal-400 transition"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-slate-600 mb-1.5">
-                End time
-              </label>
-              <input
-                type="time"
-                value={endTime}
-                onChange={(e) => { setEndTime(e.target.value); setHasChecked(false); setResult(null); }}
-                className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-teal-400 transition"
-              />
-            </div>
+            <TimeField
+              label="Current time"
+              value={state.nowTime}
+              onChange={(value) => dispatch({ type: "setTime", field: "nowTime", value })}
+            />
+            <TimeField
+              label="Start time"
+              value={state.startTime}
+              onChange={(value) => dispatch({ type: "setTime", field: "startTime", value })}
+            />
+            <TimeField
+              label="End time"
+              value={state.endTime}
+              onChange={(value) => dispatch({ type: "setTime", field: "endTime", value })}
+            />
             <button
-              onClick={handleCheck}
-              disabled={!selectedRoomId}
+              onClick={() => dispatch({ type: "check" })}
+              disabled={!selectedRoom}
               className="w-full rounded-xl bg-teal-600 text-white font-semibold text-sm py-2.5 px-4 hover:bg-teal-700 active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               <Search className="w-4 h-4" />
@@ -141,27 +121,29 @@ function App() {
           {startMin >= 0 && endMin > startMin && (
             <p className="mt-3 text-xs text-slate-500">
               Duration: <span className="font-medium text-slate-700">{endMin - startMin} min</span>
-              {endMin - startMin > 120 && (
-                <span className="text-red-500 font-medium"> — exceeds the 120-minute limit</span>
+              {exceedsMaxDuration(startMin, endMin) && (
+                <span className="text-red-500 font-medium">
+                  {" "}— exceeds the {MAX_BOOKING_MINUTES}-minute limit
+                </span>
               )}
             </p>
           )}
         </section>
 
         {/* Result */}
-        {hasChecked && <ResultPanel result={result} />}
+        {state.checked && <ResultPanel result={result} />}
 
         {/* Timeline */}
         <Timeline
           room={selectedRoom}
-          bookings={bookings}
-          pendingStart={hasChecked ? startMin : null}
-          pendingEnd={hasChecked ? endMin : null}
+          bookings={SAMPLE_BOOKINGS}
+          pendingStart={state.checked ? startMin : null}
+          pendingEnd={state.checked ? endMin : null}
           nowMinutes={nowMinutes}
         />
 
         {/* Booking list */}
-        <BookingList room={selectedRoom} bookings={bookings} />
+        <BookingList room={selectedRoom} bookings={SAMPLE_BOOKINGS} />
       </main>
 
       <footer className="max-w-6xl mx-auto px-4 sm:px-6 pb-8">

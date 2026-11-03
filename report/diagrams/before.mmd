@@ -1,0 +1,16 @@
+flowchart TB
+  subgraph BEFORE["BEFORE (tag v1-initial): flat src/, logic mixed into App.tsx"]
+    direction TB
+    MAIN["main.tsx"] --> APP["App.tsx (176 lines)<br/>state + validation hint (120) + 4x reset<br/>+ bookings filter + layout + 3x input markup"]
+    APP --> RC["RoomCard.tsx"]
+    APP --> TL["Timeline.tsx<br/>(own roomId filter, own 1440)"]
+    APP --> BL["BookingList.tsx<br/>(own roomId filter)"]
+    APP --> RP["ResultPanel.tsx"]
+    APP --> AV["availability.ts<br/>(own 120, own 1440, own roomId filter)"]
+    APP --> DATA["data.ts<br/>rooms + bookings together"]
+    AV --> TU["timeUtils.ts<br/>(incl. real-clock getNowMinutes)"]
+    APP --> TU
+    TL --> TU
+    BL --> TU
+    DATA --> TY["types.ts"]
+  end

@@ -1,12 +1,4 @@
-import type { Room, Booking } from "./types";
-
-export const SAMPLE_ROOMS: Room[] = [
-  { id: "r1", name: "Auditorium A", building: "North Wing", capacity: 200, blocked: false },
-  { id: "r2", name: "Lab 101", building: "Tech Block", capacity: 40, blocked: false },
-  { id: "r3", name: "Study Room 204", building: "Central Library", capacity: 12, blocked: false },
-  { id: "r4", name: "Conference B", building: "South Wing", capacity: 30, blocked: true },
-  { id: "r5", name: "Lecture Hall 3", building: "Main Building", capacity: 150, blocked: false },
-];
+import type { Booking } from "../types";
 
 export const SAMPLE_BOOKINGS: Booking[] = [
   { id: "b1", roomId: "r1", start: 540, end: 630, title: "Intro to CS", bookedBy: "Prof. Lee" },

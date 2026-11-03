@@ -1,0 +1,43 @@
+flowchart TB
+  subgraph AFTER["AFTER (tag v2-final): layers with one responsibility each"]
+    direction TB
+    MAIN["main.tsx"] --> APP["App.tsx<br/>wiring + layout only"]
+    subgraph UI["components/ (presentation)"]
+      RFP["RoomFilterPanel"]
+      RL["RoomList + empty state (F4)"]
+      RC["RoomCard"]
+      TF["TimeField"]
+      TL["Timeline"]
+      BL["BookingList"]
+      RP["ResultPanel"]
+      ST["styles.ts"]
+    end
+    subgraph STATE["state/ (pure, testable)"]
+      CS["checkerState.ts<br/>reducer + selectors (F5)"]
+    end
+    subgraph DOMAIN["domain/ (no React, no DOM)"]
+      AV["availability.ts<br/>AC1-AC5, F3"]
+      FI["filter.ts<br/>F1, F2"]
+      BK["bookings.ts<br/>getRoomBookings (single scoping rule)"]
+      TI["time.ts"]
+    end
+    subgraph DATA["data/ + config"]
+      RM["rooms.ts (5 rooms)"]
+      BD["bookings.ts"]
+      EQ["equipment.ts"]
+      CF["config.ts<br/>MAX 120, day bounds, fixed clock"]
+    end
+    APP --> UI
+    APP --> CS
+    CS --> AV
+    CS --> FI
+    AV --> BK
+    AV --> TI
+    AV --> CF
+    UI --> BK
+    UI --> TI
+    TL --> CF
+    APP --> RM
+    APP --> BD
+    RFP --> EQ
+  end

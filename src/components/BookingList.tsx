@@ -1,6 +1,6 @@
-import type { Booking } from "../types";
-import type { Room } from "../types";
-import { minutesToLabel } from "../timeUtils";
+import type { Booking, Room } from "../types";
+import { minutesToLabel } from "../domain/time";
+import { getRoomBookings, sortByStart } from "../domain/bookings";
 import { Calendar } from "lucide-react";
 
 interface BookingListProps {
@@ -9,8 +9,8 @@ interface BookingListProps {
 }
 
 export function BookingList({ room, bookings }: BookingListProps) {
-  const items = room ? bookings.filter((b) => b.roomId === room.id) : bookings;
-  const sorted = [...items].sort((a, b) => a.start - b.start);
+  const items = room ? getRoomBookings(bookings, room.id) : bookings;
+  const sorted = sortByStart(items);
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-4">

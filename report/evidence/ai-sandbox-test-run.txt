@@ -1,0 +1,9 @@
+✓ components/ui.test.tsx (5 tests)
+✓ domain/availability.improved.test.ts (29 tests)
+✓ domain/availability.test.ts (19 tests)
+✓ domain/bookings.test.ts (2 tests)
+✓ domain/filter.test.ts (13 tests)
+✓ state/checkerState.test.ts (11 tests)
+
+Test Files 6
+Tests 79 passed, 0 failed (79)

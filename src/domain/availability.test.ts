@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { checkAvailability, type CheckResult } from "./availability";
-import type { Room, Booking } from "./types";
+import type { Room, Booking } from "../types";
 
 // Default fixture values from the spec.
 const NOW = 540;
@@ -9,6 +9,7 @@ const DEFAULT_ROOM: Room = {
   name: "Lab 101",
   building: "Tech Block",
   capacity: 40,
+  equipment: [],
   blocked: false,
 };
 const DEFAULT_BOOKINGS: Booking[] = [

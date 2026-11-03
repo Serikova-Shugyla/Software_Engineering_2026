@@ -1,5 +1,7 @@
 import type { Room, Booking } from "../types";
-import { minutesToLabel, timeInputValue } from "../timeUtils";
+import { minutesToLabel } from "../domain/time";
+import { getRoomBookings } from "../domain/bookings";
+import { DAY_START_MINUTES, DAY_END_MINUTES } from "../config";
 import { Clock } from "lucide-react";
 
 interface TimelineProps {
@@ -10,14 +12,14 @@ interface TimelineProps {
   nowMinutes: number;
 }
 
-const DAY_START = 0;
-const DAY_END = 1440;
+const DAY_START = DAY_START_MINUTES;
+const DAY_END = DAY_END_MINUTES;
 
 export function Timeline({ room, bookings, pendingStart, pendingEnd, nowMinutes }: TimelineProps) {
   const range = DAY_END - DAY_START;
   const pct = (m: number) => ((m - DAY_START) / range) * 100;
 
-  const roomBookings = room ? bookings.filter((b) => b.roomId === room.id) : [];
+  const roomBookings = room ? getRoomBookings(bookings, room.id) : [];
 
   const hours = [];
   for (let h = 0; h <= 24; h += 3) {
