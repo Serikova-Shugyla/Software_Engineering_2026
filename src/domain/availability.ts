@@ -1,7 +1,16 @@
 import type { Room, Booking } from "../types";
 import { DAY_START_MINUTES, DAY_END_MINUTES, MAX_BOOKING_MINUTES } from "../config";
-import { minutesToLabel } from "./time";
 import { getRoomBookings } from "./bookings";
+import {
+  availableMessage,
+  blockedMessage,
+  invalidTimeMessage,
+  orderMessage,
+  overlapMessage,
+  pastMessage,
+  rangeMessage,
+  tooLongMessage,
+} from "./messages";
 
 export type CheckResult =
   | { ok: true; message: string }
@@ -21,38 +30,26 @@ export function checkAvailability(
 ): CheckResult {
   // AC1: valid interval, start after current time
   if (isNaN(start) || isNaN(end)) {
-    return { ok: false, message: "Invalid time values.", reason: "invalid" };
+    return { ok: false, message: invalidTimeMessage(), reason: "invalid" };
   }
   if (start < DAY_START_MINUTES || end > DAY_END_MINUTES) {
-    return { ok: false, message: "Time must be between 00:00 and 24:00.", reason: "range" };
+    return { ok: false, message: rangeMessage(), reason: "range" };
   }
   if (start >= end) {
-    return { ok: false, message: "Start time must be before end time.", reason: "order" };
+    return { ok: false, message: orderMessage(), reason: "order" };
   }
   if (start <= nowMinutes) {
-    return {
-      ok: false,
-      message: `Start time must be after the current time (${minutesToLabel(nowMinutes)}).`,
-      reason: "past",
-    };
+    return { ok: false, message: pastMessage(nowMinutes), reason: "past" };
   }
 
   // AC2: max duration
   if (exceedsMaxDuration(start, end)) {
-    return {
-      ok: false,
-      message: `Bookings may not exceed ${MAX_BOOKING_MINUTES} minutes.`,
-      reason: "too_long",
-    };
+    return { ok: false, message: tooLongMessage(), reason: "too_long" };
   }
 
   // AC3 / F3: blocked room is never available
   if (room.blocked) {
-    return {
-      ok: false,
-      message: `"${room.name}" is currently blocked and cannot be booked.`,
-      reason: "blocked",
-    };
+    return { ok: false, message: blockedMessage(room.name), reason: "blocked" };
   }
 
   // AC4: no overlap with THIS room's bookings (touching endpoints allowed)
@@ -62,7 +59,7 @@ export function checkAvailability(
   if (conflict) {
     return {
       ok: false,
-      message: `Overlaps "${conflict.title}" (${minutesToLabel(conflict.start)}–${minutesToLabel(conflict.end)}).`,
+      message: overlapMessage(conflict.title, conflict.start, conflict.end),
       reason: "overlap",
     };
   }
@@ -70,6 +67,6 @@ export function checkAvailability(
   // AC5: available — does NOT modify bookings
   return {
     ok: true,
-    message: `"${room.name}" is available for ${minutesToLabel(start)}–${minutesToLabel(end)}.`,
+    message: availableMessage(room.name, start, end),
   };
 }
