@@ -3,6 +3,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { RoomList } from "./RoomList";
 import { RoomFilterPanel } from "./RoomFilterPanel";
 import { ResultPanel } from "./ResultPanel";
+import { Timeline } from "./Timeline";
 import { SAMPLE_ROOMS } from "../data/rooms";
 import { SAMPLE_BOOKINGS } from "../data/bookings";
 import { emptyRequirements } from "../domain/filter";
@@ -63,5 +64,14 @@ describe("UI behavior (rendered markup)", () => {
     expect(ok).toContain("Room is free.");
     expect(bad).toContain("Unavailable");
     expect(bad).toContain("Overlaps X.");
+  });
+});
+
+describe("Assignment 05 timeline display", () => {
+  it("renders the end-of-day tick as midnight and aligns its label inward", () => {
+    const html = renderToStaticMarkup(
+      <Timeline room={null} bookings={[]} pendingStart={null} pendingEnd={null} nowMinutes={540} />,
+    );
+    expect(html).toMatch(/left:100%"><span class="[^"]*right-px[^"]*">12 AM<\/span>/);
   });
 });

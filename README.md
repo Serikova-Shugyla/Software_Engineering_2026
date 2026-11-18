@@ -5,25 +5,24 @@ The checker answers one question: *"Is this room free for this time interval?"* 
 
 ## Setup, run, test
 
+Use Node.js and npm. This snapshot was verified with Node.js 24.22.3 and npm 11.9.0. Run these commands from the repository root.
+
 ```bash
-npm install          # once
+npm ci               # install exact locked versions
 npm run dev          # http://localhost:5173
-npm test             # vitest run  (79 tests)
+npm test             # Vitest
 npm run typecheck    # tsc --noEmit
-npm run lint         # eslint
-node scripts/measure.mjs   # before/after quality measures (needs git + the v1-initial tag)
+npm run lint         # ESLint
+npm run build        # Vite production build
 ```
 
-Windows PowerShell: if `npm` is blocked by the execution policy, run
-`Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned` once.
+Windows PowerShell users can use `npm.cmd` in place of `npm` if script execution is blocked.
 
-To save test output as readable UTF-8 text (PowerShell's `Tee-Object` writes UTF-16 with colour codes):
+## Assignment #05 audit
 
-```powershell
-$env:NO_COLOR = 1; npm test 2>&1 | Out-File -Encoding utf8 report\final-test-output.txt
-```
+Assignment #05 validates the current-time input and fixes the end-of-day timeline label. The audit, screenshots and verification records are supplied in a separate PDF. The historical metrics command for Assignment #04 is `node scripts/measure.mjs`.
 
-## Versions
+## Assignment #04 history
 
 | Git tag | Meaning |
 |---|---|
@@ -72,6 +71,5 @@ report/                     analysis, diagrams, evidence, AI appendix
 
 * Data lives in memory; nothing is saved and no booking can be created.
 * Time is time-of-day only (no dates, one day).
-* UI tests render markup (`react-dom/server`); real click-through behaviour is covered through the pure reducer plus manual checks, not a browser test runner.
-* The timeline axis labels 24:00 as "12 PM" (pre-existing cosmetic issue in `Timeline.tsx`, deliberately not changed).
-* `@supabase/supabase-js` is listed in `package.json` but imported nowhere (v1 and v2). Optional cleanup: `npm uninstall @supabase/supabase-js`.
+* The in-repo UI suite renders static markup with `react-dom/server`. The reducer suite covers state transitions.
+* `@supabase/supabase-js` is listed in `package.json` but imported nowhere. Any dependency removal requires maintainer review.

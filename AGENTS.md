@@ -1,22 +1,19 @@
-## Project
-Smart Campus room availability checker; 5 fictional rooms (one blocked), fixed current time 09:00.
-React + TypeScript app. Booking rules: src/domain/availability.ts.
-State: src/state/checkerState.ts. Data: src/data/*. Config: src/config.ts.
+# Smart Campus Room Availability Checker
 
-## Constraints
-Preserve AC1–AC6; no backend, login or booking creation.
-Do not change the visible UI, message texts or fixture data.
+This React, TypeScript and Vite demo checks room availability against fictional, in-memory data. It does not create bookings. Keep the existing AC1–AC6 and filter behavior. Preserve layout, existing availability messages and fictional fixtures. Keep runtime scope to the local demo.
 
-## Engineering rules
-Prefer pure functions and minimal changes; use at most 2 justified patterns.
-Do not mutate booking fixtures; keep responsive UI feedback.
-Do not add new features or dependencies.
+## Repository map
 
-## Verification
-Test: npm test (vitest run)
-Typecheck: npm run typecheck
-Lint: npm run lint
-Build: npm run build
-Run existing tests and add focused regression tests.
-Do not weaken or delete existing assertions.
-Report changed files, rationale and test evidence.
+- `src/main.tsx` mounts `src/App.tsx`, which wires controls and state.
+- `src/domain/` contains pure booking, filtering and time helpers.
+- `src/state/checkerState.ts` contains the reducer and selectors. `src/components/` renders the UI.
+- `src/data/` holds fictional fixtures. Keep `src/config.ts` as the source of business constants.
+- Keep tests next to the logic they exercise. Do not remove or weaken existing assertions.
+
+## Allowed local workflow
+
+Use a dedicated task branch or worktree. Read `README.md` and inspect git status before editing. Run `npm ci` from the committed lockfile, `npm test`, `npm run typecheck`, `npm run lint` and `npm run build`. Use `npm run dev` or `npm run preview` for local smoke checks. Read-only inspection with `git status`, `git diff` and `git log` is permitted. Keep changes focused and prefer existing pure helpers over new abstractions.
+
+## Prohibited operations and review gates
+
+Do not access or commit credentials or real personal data. Do not deploy, force-push, rewrite history or run destructive commands. Leave dependency manifests and lockfiles alone unless a human explicitly authorizes and reviews a dependency change. Ask before expanding the agreed file scope. Before merge or deployment, provide the diff, rationale, actual command exits, test counts and known gaps for human review. Stop on unexpected changes or failed checks and report them.

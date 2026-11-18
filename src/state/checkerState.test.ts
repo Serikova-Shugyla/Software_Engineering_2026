@@ -17,6 +17,16 @@ const visibleIds = (s: CheckerState) => selectVisibleRooms(s, SAMPLE_ROOMS).map(
 const result = (s: CheckerState) => selectResult(s, SAMPLE_ROOMS, SAMPLE_BOOKINGS);
 
 describe("integration: filter -> select -> check -> switch room", () => {
+
+  it("rejects an availability check when the current time is cleared", () => {
+    const state = run(
+      createInitialState(SAMPLE_ROOMS),
+      { type: "setTime", field: "nowTime", value: "" },
+      { type: "check" }
+    );
+
+    expect(result(state)).toMatchObject({ ok: false, reason: "invalid" });
+  });
   it("I1: initial state uses the fixed clock (09:00), selects the first room, shows no result", () => {
     const s = createInitialState(SAMPLE_ROOMS);
     expect(s.nowTime).toBe("09:00");

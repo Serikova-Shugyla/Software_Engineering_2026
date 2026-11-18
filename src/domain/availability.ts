@@ -29,7 +29,7 @@ export function checkAvailability(
   nowMinutes: number
 ): CheckResult {
   // AC1: valid interval, start after current time
-  if (isNaN(start) || isNaN(end)) {
+  if (!Number.isFinite(start) || !Number.isFinite(end) || !Number.isFinite(nowMinutes)) {
     return { ok: false, message: invalidTimeMessage(), reason: "invalid" };
   }
   if (start < DAY_START_MINUTES || end > DAY_END_MINUTES) {

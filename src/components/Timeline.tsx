@@ -43,8 +43,12 @@ export function Timeline({ room, bookings, pendingStart, pendingEnd, nowMinutes 
             className="absolute top-0 bottom-0 border-l border-slate-200"
             style={{ left: `${pct(h)}%` }}
           >
-            <span className="absolute bottom-0 -translate-x-1/2 text-[9px] text-slate-400 pb-0.5">
-              {h === 0 ? "12 AM" : h === 720 ? "12 PM" : h < 720 ? `${h / 60} AM` : `${(h - 720) / 60} PM`}
+            <span
+              className={`absolute bottom-0 whitespace-nowrap text-[9px] text-slate-400 pb-0.5 ${
+                h === DAY_START ? "left-0" : h === DAY_END ? "right-px" : "-translate-x-1/2"
+              }`}
+            >
+              {minutesToLabel(h).replace(":00 ", " ")}
             </span>
           </div>
         ))}
