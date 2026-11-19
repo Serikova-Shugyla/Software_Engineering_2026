@@ -56,7 +56,7 @@ src/
   components/               presentation only (RoomFilterPanel, RoomList, RoomCard, TimeField, ...)
   App.tsx                   wiring + layout
 scripts/measure.mjs         reproducible before/after measures
-report/                     analysis, diagrams, evidence, AI appendix
+
 ```
 
 ## Design decisions worth knowing
