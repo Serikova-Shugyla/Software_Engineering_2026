@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { checkAvailability, type CheckResult } from "./availability";
 import type { Room, Booking } from "../types";
 
-// Improved with Claude after review.
+
 // Original 18 tests (T01..T16 + 2x AC5) preserved with their expectations,
 // plus R1..R7 boundary / readability / room-integrity improvements.
 //
