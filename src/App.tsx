@@ -8,6 +8,8 @@ import { Timeline } from "./components/Timeline";
 import { BookingList } from "./components/BookingList";
 import { ResultPanel } from "./components/ResultPanel";
 import { exceedsMaxDuration } from "./domain/availability";
+import type { ExplanationRequest } from "./domain/explain/types";
+import { EXPLANATION_REASON_CODES } from "./domain/explain/types";
 import { parseAttendees } from "./domain/filter";
 import { timeInputToMinutes, minutesToLabel } from "./domain/time";
 import { MAX_BOOKING_MINUTES } from "./config";
@@ -35,6 +37,24 @@ function App() {
   const nowMinutes = timeInputToMinutes(state.nowTime);
   const startMin = timeInputToMinutes(state.startTime);
   const endMin = timeInputToMinutes(state.endTime);
+
+  // The deterministic checker is the only source of truth: the explanation only rewords its verdict.
+  let explanationRequest: ExplanationRequest | null = null;
+  if (result) {
+    const reasonCode: ExplanationRequest["reasonCode"] = result.ok
+      ? "available"
+      : (EXPLANATION_REASON_CODES as readonly string[]).includes(result.reason)
+        ? (result.reason as ExplanationRequest["reasonCode"])
+        : "invalid";
+    explanationRequest = {
+      roomLabel: selectedRoom?.name ?? "This room",
+      startTime: startMin,
+      endTime: endMin,
+      isAvailable: result.ok,
+      reasonCode,
+    };
+  }
+  const explanationKey = `${state.checked ? "c" : "n"}|${state.selectedRoomId}|${state.startTime}|${state.endTime}|${state.nowTime}`;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-teal-50/30 to-slate-100">
@@ -131,7 +151,13 @@ function App() {
         </section>
 
         {/* Result */}
-        {state.checked && <ResultPanel result={result} />}
+        {state.checked && (
+          <ResultPanel
+            result={result}
+            explanationRequest={explanationRequest}
+            explanationKey={explanationKey}
+          />
+        )}
 
         {/* Timeline */}
         <Timeline
