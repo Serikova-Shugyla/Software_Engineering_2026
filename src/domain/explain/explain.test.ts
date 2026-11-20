@@ -135,3 +135,27 @@ describe("E4: overly long room label is sanitized", () => {
     }
   });
 });
+describe("Practice 11 regression fixes", () => {
+  it("does not invent times for an invalid interval", () => {
+    const outcome = explainAvailability(
+      makeRequest({
+        startTime: 900,
+        endTime: 840,
+        isAvailable: false,
+        reasonCode: "order",
+      })
+    );
+
+    expect(outcome.status).toBe("fallback");
+    expect(outcome.result.explanation).not.toContain("9:00 AM");
+    expect(outcome.result.explanation).toContain("invalid");
+  });
+
+  it("rejects overly long room labels", () => {
+    expect(
+      isValidExplanationRequest(
+        makeRequest({ roomLabel: "R".repeat(81) })
+      )
+    ).toBe(false);
+  });
+});
